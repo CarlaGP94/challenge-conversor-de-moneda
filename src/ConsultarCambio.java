@@ -1,3 +1,5 @@
+import com.google.gson.Gson;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -5,12 +7,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class ConsultarCambio {
-    // Su clave API: 31118cbd8505283e353a3b71
-    // https://v6.exchangerate-api.com/v6/ SU-CLAVE-API /par/ EUR / GBP / IMPORTE
+    // https://v6.exchangerate-api.com/v6/ SU-CLAVE-API /pair/ EUR / GBP / IMPORTE
 
-    public void cambio (int moneda1, int moneda2, double monto) {
+    public Moneda cambio (String monedaActual, String monedaCambio, double monto) {
         URI link = URI.create("https://v6.exchangerate-api.com/v6/31118cbd8505283e353a3b71/pair/"+
-                moneda1 + "/" + moneda2 + "/" + monto);
+                monedaActual + "/" + monedaCambio + "/" + monto);
 
         HttpClient client = HttpClient.newHttpClient();
 
@@ -18,16 +19,14 @@ public class ConsultarCambio {
                 .uri(link)
                 .build();
 
-        HttpResponse<String> response;
-
-        {
             try {
-                response = client
+                HttpResponse<String> response = client
                         .send(request, HttpResponse.BodyHandlers.ofString());
+                return new Gson().fromJson(response.body(), Moneda.class);
+
             } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Error");
             }
-        }
     }
 }
 
